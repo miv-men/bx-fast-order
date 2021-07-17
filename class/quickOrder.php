@@ -1,5 +1,5 @@
 <?
-namespace mivMen;
+namespace Malashko;
 
 use Bitrix\Main\Loader;
 use Bitrix\Sale\Internals\BasketTable;
@@ -31,8 +31,6 @@ class quickOrder
 
     public function createOrder($id_product = false, $quantity = false){
 
-        $quantity = (empty($quantity)) ? 1 : $quantity;
-
         if($id_product)
             $basket = $this->productCart($id_product, $quantity);
         else
@@ -45,23 +43,27 @@ class quickOrder
 
     }
 
-    private function productCart($id, $quantity){
+    private function productCart($ids, $quantity){
 
         $basket = \Bitrix\Sale\Basket::create(SITE_ID);
         $basket = $basket->getOrderableItems();
 
-        foreach ($basket as $item) {
-            $item->getItemById($id)->delete();
-        }
+        foreach ($ids as $k => $id) {
 
-        $item = $basket->createItem("catalog", $id);
-        $item->setFields(array(
-            'PRODUCT_ID' => $id,
-            'CURRENCY' => 'RUB',
-            'QUANTITY' => $quantity,
-            'LID' => SITE_ID,
-            'PRODUCT_PROVIDER_CLASS' => '\CCatalogProductProvider'
-        ));
+            $q = (empty($quantity[$k])) ? 1 : $quantity[$k];
+//            foreach ($basket as $item) {
+//                $item->getItemById($id)->delete();
+//            }
+
+            $item = $basket->createItem("catalog", $id);
+            $item->setFields(array(
+                'PRODUCT_ID' => $id,
+                'CURRENCY' => 'RUB',
+                'QUANTITY' => $q,
+                'LID' => SITE_ID,
+                'PRODUCT_PROVIDER_CLASS' => '\CCatalogProductProvider'
+            ));
+        }
 
         return $basket;
 
@@ -76,7 +78,11 @@ class quickOrder
     private function _user(){
 
         global $USER;
-        if ($USER->IsAuthorized()){
+        if (!empty($this->user['ID'])){
+            $user['ID'] = $this->user['ID'];
+            $user['EMAIL'] = '';
+
+        } elseif ($USER->IsAuthorized()){
             $user['ID'] = $USER->GetID();
             $user['EMAIL'] = $USER->GetEmail();
 
@@ -85,12 +91,6 @@ class quickOrder
             $user['EMAIL'] = '';
         }
         return $user;
-
-    }
-
-    private function _order(){
-
-        return \Bitrix\Sale\Order::create(SITE_ID, $this->_user()['ID']);
 
     }
 
@@ -108,6 +108,8 @@ class quickOrder
                     $prop = $collection->getPhone();
                 elseif ($key == 'EMAIL')
                     $prop = $collection->getEmail();
+                elseif ($key == 'ADDRESS')
+                    $prop = $collection->getAddress();
                 else{
                     $order->setField($key, $value);
                     continue;
@@ -161,7 +163,7 @@ class quickOrder
 
     public function addOrder($basket){
 
-        $order = $this->_order();
+        $order = \Bitrix\Sale\Order::create(SITE_ID, $this->_user()['ID']);
         $order->setPersonTypeId(1);
         $order->setBasket($basket);
 
