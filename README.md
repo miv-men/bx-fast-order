@@ -11,17 +11,17 @@ $quickOrder = new \Malashko\quickOrder();
 $user = [
     'ID' => $new_user_id, // если указан ID, то заказ будет оформлен от данного пользователя;
     // в противном случае заказ оформится на авторизованного пользователя;
-    'NAME' => $orderList[$i][1],
-    'ADDRESS' => $orderList[$i][2],
-    'PHONE' => $orderList[$i][3],
-    'USER_DESCRIPTION' => $orderList[$i][6]
+    'NAME' => "Илья",
+    'ADDRESS' => "г. Новосибирск, ул. Ясный берег",
+    'PHONE' => "+7-999-888-77-66",
+    'USER_DESCRIPTION' => "Быстрый заказ из инсты."
 ];
 $quickOrder->user($user);
 ```
 
 Передаем дополнительные свойства заказа:
 ```php
-$quickOrder->customRow(['COMMENT' => 'ИЗ ЧАТА: '.$orderList[$i][0], "DELIVERY_SERVICE" => $orderList[$i][4]]);
+$quickOrder->customRow(['COMMENT' => "ИЗ ЧАТА", "DELIVERY_SERVICE" => "Самовывоз"]);
 ```
 
 Создаем заказ:
