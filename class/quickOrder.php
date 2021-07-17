@@ -107,10 +107,10 @@ class quickOrder
                 elseif ($key == 'PHONE')
                     $prop = $collection->getPhone();
                 elseif ($key == 'EMAIL')
-                    $prop = $collection->getEmail();
+                    $prop = $collection->getUserEmail();
                 elseif ($key == 'ADDRESS')
                     $prop = $collection->getAddress();
-                else{
+                elseif ($key != 'ID'){
                     $order->setField($key, $value);
                     continue;
                 }
