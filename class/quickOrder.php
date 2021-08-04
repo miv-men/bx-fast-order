@@ -1,4 +1,4 @@
-<?
+<?php
 namespace Malashko;
 
 use Bitrix\Main\Loader;
@@ -10,12 +10,12 @@ use Bitrix\Sale;
 \Bitrix\Main\Loader::includeModule("sale");
 
 /**
-* Класс для оформления быстрого заказа
-*/
+ * Класс для оформления быстрого заказа
+ */
 class quickOrder
 {
 
-    protected $site = SITE_ID;
+    private  $delivery = 270;
 
     public function user($user){
 
@@ -26,6 +26,12 @@ class quickOrder
     public function customRow($row){
 
         $this->custom = $row;
+
+    }
+
+    public function delivery($row){
+
+        $this->delivery = $row;
 
     }
 
@@ -161,18 +167,24 @@ class quickOrder
 
     }
 
+    private function deliveryCollection($order){
+
+        $shipmentCollection = $order->getShipmentCollection();
+        $shipment = $shipmentCollection->createItem(
+            \Bitrix\Sale\Delivery\Services\Manager::getObjectById($this->delivery)
+        );
+
+        return $shipment->getShipmentItemCollection();
+
+    }
+
     public function addOrder($basket){
 
         $order = \Bitrix\Sale\Order::create(SITE_ID, $this->_user()['ID']);
         $order->setPersonTypeId(1);
         $order->setBasket($basket);
 
-        $shipmentCollection = $order->getShipmentCollection();
-        $shipment = $shipmentCollection->createItem(
-            \Bitrix\Sale\Delivery\Services\Manager::getObjectById(1)
-        );
-
-        $shipmentItemCollection = $shipment->getShipmentItemCollection();
+        $shipmentItemCollection = $this->deliveryCollection($order);
 
         foreach ($basket as $basketItem)
         {
