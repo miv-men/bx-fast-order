@@ -16,6 +16,7 @@ class quickOrder
 {
 
     private  $delivery = 270;
+    private  $type = 2;
 
     public function user($user){
 
@@ -32,6 +33,12 @@ class quickOrder
     public function delivery($row){
 
         $this->delivery = $row;
+
+    }
+
+    public function profile_type($profile_type){
+
+        $this->type = $profile_type;
 
     }
 
@@ -86,19 +93,18 @@ class quickOrder
         global $USER;
         if (!empty($this->user['ID'])){
             $user['ID'] = $this->user['ID'];
-            $user['EMAIL'] = '';
 
         } elseif ($USER->IsAuthorized()){
             $user['ID'] = $USER->GetID();
             $user['EMAIL'] = $USER->GetEmail();
 
         }else{
-            $user['ID'] = Sale\Fuser::getId();
-            $user['EMAIL'] = '';
+            $user['ID'] = \Sale\Fuser::getId();
         }
         return $user;
 
     }
+
 
     private function propertyCollection($order){
 
@@ -110,9 +116,9 @@ class quickOrder
 
                 if ($key == 'NAME')
                     $prop = $collection->getProfileName();
-                elseif ($key == 'PHONE')
+                elseif ($key == 'PHONE') {
                     $prop = $collection->getPhone();
-                elseif ($key == 'EMAIL')
+                }elseif ($key == 'EMAIL')
                     $prop = $collection->getUserEmail();
                 elseif ($key == 'ADDRESS')
                     $prop = $collection->getAddress();
@@ -120,7 +126,6 @@ class quickOrder
                     $order->setField($key, $value);
                     continue;
                 }
-
 
                 if ($prop) {
                     $prop->setValue($value);
@@ -152,8 +157,6 @@ class quickOrder
 
         }
 
-
-
     }
 
     private function paymentCollection($order){
@@ -181,7 +184,7 @@ class quickOrder
     public function addOrder($basket){
 
         $order = \Bitrix\Sale\Order::create(SITE_ID, $this->_user()['ID']);
-        $order->setPersonTypeId(1);
+        $order->setPersonTypeId($this->type);
         $order->setBasket($basket);
 
         $shipmentItemCollection = $this->deliveryCollection($order);
