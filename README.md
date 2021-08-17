@@ -24,6 +24,17 @@ $quickOrder->user($user);
 $quickOrder->customRow(['COMMENT' => "ИЗ ЧАТА", "DELIVERY_SERVICE" => "Самовывоз"]);
 ```
 
+Так же можно передать тип платильшика, если тип не указан будет установлен тип по умолчанию
+```php
+// Пример опледеления типа по группе пользователя
+if (in_array(16, CUser::GetUserGroup($user_id)))
+    $type = 2;
+else
+    $type = 1;
+    
+$quickOrder->profile_type($type); // Передача типа
+```
+
 Создаем заказ:
 ```php
 $quickOrder->createOrder([301, 302], [2, 3]); // если передать пустые порметры, 
